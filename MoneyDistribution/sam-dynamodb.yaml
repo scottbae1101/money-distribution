@@ -1,0 +1,31 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: DynamoDB table for money distribution service
+##########  Common variables for environment and resources  ##########
+Parameters:
+  STAGE:
+    Default: dv
+    Type: String
+##########  AWS Resources  ##########
+Resources:
+  ##########  DB  ##########
+  MoneyDistributionTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: "Retain"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "PK"
+          AttributeType: "S"
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        -
+          AttributeName: PK
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "0"
+        WriteCapacityUnits: "0"
+      TableName: money-distribution
+#      TimeToLiveSpecification:
+#        AttributeName: ttl
+#        Enabled: True

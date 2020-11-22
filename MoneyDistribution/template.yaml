@@ -1,0 +1,67 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Money distribution service stack built by AWS SAM and OpenAPI3.0 specs
+
+##########  Common variables for environment and resources  ##########
+Globals:
+  Function:
+    Runtime: java11
+    MemorySize: 512
+    Timeout: 27
+    Environment:
+      Variables:
+        STAGE: dv
+        REGION: 'ap-northeast-2'
+        DDB_NAME: 'money-distribution'
+    Tags:
+      'Person In Charge': 'jaeseung.bae'
+Parameters:
+  STAGE:
+    Default: dv
+    Type: String
+  MoneyDistributionTableName:
+    Default: money-distribution
+    Type: String
+
+
+##########  AWS Resources  ##########
+Resources:
+  PostMoneyDistributionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: HelloWorldFunction
+      Handler: distribution.framework.awslambda.PostMoneyDistribution::handleRequest
+      Events:
+        MoneyDistribution:
+          Type: Api
+          Properties:
+            Path: /distributions
+            Method: POST
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref MoneyDistributionTableName
+  GetMoneyDistributionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: HelloWorldFunction
+      Handler: distribution.framework.awslambda.GetMoneyDistribution::handleRequest
+      Events:
+        MoneyDistribution:
+          Type: Api
+          Properties:
+            Path: /distributions
+            Method: GET
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MoneyDistributionTableName
+
+#      Policies:
+#        - DynamoDBCrudPolicy:
+#            TableName: !Ref PccsTableName
+
+##########  Output of cloudformation build  ##########
+Outputs:
+  ApiUrl:
+    Description: URL of your API endpoint
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/distributions"
