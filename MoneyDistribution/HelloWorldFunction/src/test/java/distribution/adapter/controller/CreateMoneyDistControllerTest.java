@@ -11,6 +11,7 @@ import distribution.application.repository.MoneyDistRepository;
 import distribution.application.usecase.CreateMoneyDistUsecase;
 import distribution.application.usecase.CreateOutputDTO;
 import distribution.application.usecase.EqualMoneySplitAlgorithm;
+import distribution.application.usecase.UpdateMoneyDistUsecase;
 import distribution.entity.MoneyDistribution;
 import distribution.framework.main.CreateMoneyDistMain;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,6 +82,12 @@ class CreateMoneyDistControllerTest {
       public boolean save(MoneyDistribution newDistribution) {
         return true;
       }
+
+      @Override
+      public int updateDistribution(UpdateMoneyDistUsecase.RequestDTO req) {
+        return -1;
+      }
+
     }, new EqualMoneySplitAlgorithm()), new AwsLambdaSerializer());
 
     // Act

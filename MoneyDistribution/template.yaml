@@ -41,19 +41,19 @@ Resources:
       Policies:
         - DynamoDBWritePolicy:
             TableName: !Ref MoneyDistributionTableName
-  GetMoneyDistributionFunction:
+  UpdateMoneyDistributionFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: HelloWorldFunction
-      Handler: distribution.framework.awslambda.GetMoneyDistribution::handleRequest
+      Handler: distribution.framework.awslambda.UpdateMoneyDistribution::handleRequest
       Events:
         MoneyDistribution:
           Type: Api
           Properties:
             Path: /distributions
-            Method: GET
+            Method: PUT
       Policies:
-        - DynamoDBReadPolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref MoneyDistributionTableName
 
 #      Policies:

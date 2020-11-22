@@ -8,6 +8,10 @@ import distribution.application.usecase.CreateMoneyDistUsecase;
 import distribution.application.usecase.CreateOutputDTO;
 
 public class CreateMoneyDistController {
+  public static final int STAUS_CODE_OK = 200;
+  public static final int STAUS_CODE_ERR = 500;
+  public static final String FORMAT_ERR = "{ \"errorMessage\": \"%s\" }";
+  public static final String FORMAT_RES_FOR_CREATE = "{\"token\": \"%s\", \"distributionLink\":\"distributions/%s\"}";
   private final MoneyDistSerializer serializer;
   private final CreateMoneyDistUsecase usecase;
 
@@ -25,13 +29,15 @@ public class CreateMoneyDistController {
           .totalAmount(in.getTotalAmount())
           .questCnt(in.getGuestCnt())
           .build();
+
       CreateMoneyDistUsecase.ResponseDTO response = this.usecase.execute(requestDTO);
+
       String token = response.getToken();
-      return new CreateOutputDTO(200, String.format("{\"token\": \"%s\", \"distributionLink\":\"distributions/%s\"}", token, token));
+      return new CreateOutputDTO(STAUS_CODE_OK, String.format(FORMAT_RES_FOR_CREATE, token, token));
     } catch (MoneyDistributionError err) {
-      return new CreateOutputDTO(err.getStatusCode(), String.format("{ \"errorMessage\": \"%s\" }", err.getMessage()));
+      return new CreateOutputDTO(err.getStatusCode(),String.format(FORMAT_ERR, err.getMessage()));
     } catch (Exception e) {
-      return new CreateOutputDTO(500, "{ \"errorMessage\": \"Unknown error\" }");
+      return new CreateOutputDTO(STAUS_CODE_ERR, String.format(FORMAT_ERR, "Unknown error"));
     }
   }
 }
