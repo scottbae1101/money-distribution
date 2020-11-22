@@ -3,6 +3,7 @@ package distribution.entity;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -11,10 +12,10 @@ import java.util.List;
 public class MoneyDistribution {
   private final String ownerId;
   private final String roomId;
-  private final String token; // 뿌리기 ID
+  private final String token;
   private final long createEpoch;
-  private final int totalAmount; // 뿌릴 금액
-  private final int guestCnt; // 뿌릴 인원수
+  private final int totalAmount;
+  private final int guestCnt;
   private List<Integer> distributeRemainingList;
-  private final Hashtable<String, Integer> distributeInfoTable = new Hashtable<>(); // 뿌린 정보 ==> <Who, amountOfMoney>
+  private final HashMap<String, Integer> distributeInfoMap = new HashMap<>(); // <userId, amountOfMoney>
 }

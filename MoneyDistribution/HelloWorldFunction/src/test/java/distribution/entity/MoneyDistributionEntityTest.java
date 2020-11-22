@@ -11,14 +11,13 @@ public class MoneyDistributionEntityTest {
   @Test
   public void newDistribution() {
     MoneyDistribution cut = MoneyDistribution.builder().build();
-    cut.getDistributeInfoTable();
     assertThat(cut, hasProperty("ownerId"));
     assertThat(cut, hasProperty("roomId"));
     assertThat(cut, hasProperty("token"));
     assertThat(cut, hasProperty("createEpoch"));
     assertThat(cut, hasProperty("totalAmount"));
     assertThat(cut, hasProperty("guestCnt"));
-    assertThat(cut, hasProperty("distributeInfoTable"));
+    assertThat(cut, hasProperty("distributeInfoMap"));
     assertThat(cut, hasProperty("distributeRemainingList"));
   }
 }

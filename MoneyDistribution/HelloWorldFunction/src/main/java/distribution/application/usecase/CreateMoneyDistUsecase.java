@@ -60,7 +60,7 @@ public class CreateMoneyDistUsecase extends UseCase<CreateMoneyDistUsecase.Reque
   }
 
   private long getNowEpoch() {
-    return new Date().getTime();
+    return new Date().getTime() / 1000;
   }
 
   private MoneyDistribution newMoneyDistribution(RequestDTO req, List<Integer> dividendParts, long nowEpoch, String randomToken) {
