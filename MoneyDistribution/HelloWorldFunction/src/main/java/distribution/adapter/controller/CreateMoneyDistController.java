@@ -9,8 +9,8 @@ import distribution.application.usecase.CreateOutputDTO;
 
 public class CreateMoneyDistController {
   public static final int STAUS_CODE_OK = 200;
-  public static final int STAUS_CODE_ERR = 500;
-  public static final String FORMAT_ERR = "{ \"errorMessage\": \"%s\" }";
+  public static final int STAUS_CODE_ERR = 400;
+  public static final String FORMAT_ERR = "{ \"Message\": \"%s\" }";
   public static final String FORMAT_RES_FOR_CREATE = "{\"token\": \"%s\", \"distributionLink\":\"distributions/%s\"}";
   private final MoneyDistSerializer serializer;
   private final CreateMoneyDistUsecase usecase;

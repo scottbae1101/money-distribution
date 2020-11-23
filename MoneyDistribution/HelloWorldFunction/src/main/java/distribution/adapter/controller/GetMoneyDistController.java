@@ -1,48 +1,50 @@
 package distribution.adapter.controller;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import distribution.adapter.serializer.MoneyDistSerializer;
 import distribution.application.exception.MoneyDistributionError;
 import distribution.application.usecase.UpdateInputDTO;
-import distribution.application.usecase.UpdateMoneyDistUsecase;
-import distribution.application.usecase.UpdateOutputDTO;
+import distribution.application.usecase.GetMoneyDistUsecase;
+import distribution.application.usecase.GetOutputDTO;
 
 import java.util.Date;
 
-public class UpdateMoneyDistController {
-  public static final String FORMAT_RES_FOR_UPDATE = "{\"money\": %d}";
+public class GetMoneyDistController {
   public static final String FORMAT_ERR = "{ \"Message\": \"%s\" }";
   public static final int STAUS_CODE_OK = 200;
   public static final int STAUS_CODE_ERR = 400;
   private final MoneyDistSerializer serializer;
-  private final UpdateMoneyDistUsecase usecase;
+  private final GetMoneyDistUsecase usecase;
 
-  public UpdateMoneyDistController(UpdateMoneyDistUsecase usecase, MoneyDistSerializer serializer) {
+  public GetMoneyDistController(GetMoneyDistUsecase usecase, MoneyDistSerializer serializer) {
     this.serializer = serializer;
     this.usecase = usecase;
   }
 
-  public UpdateOutputDTO update(APIGatewayProxyRequestEvent input) {
+  public GetOutputDTO get(APIGatewayProxyRequestEvent input) {
     long nowEpoch = getNowEpoch();
     try {
       UpdateInputDTO in = this.serializer.deserializeUpdate(input);
-      UpdateMoneyDistUsecase.RequestDTO requestDTO = UpdateMoneyDistUsecase.RequestDTO.builder()
+      GetMoneyDistUsecase.RequestDTO requestDTO = GetMoneyDistUsecase.RequestDTO.builder()
           .userId(in.getUserId())
           .roomId(in.getRoomId())
           .token(in.getToken())
           .requestEpoch(nowEpoch)
           .build();
 
-      UpdateMoneyDistUsecase.ResponseDTO response = this.usecase.execute(requestDTO);
+      GetMoneyDistUsecase.ResponseDTO response = this.usecase.execute(requestDTO);
       if (!response.isSucceeded())
         throw new Exception();
 
-      int money = response.getDistributedMoney();
-      return new UpdateOutputDTO(STAUS_CODE_OK, String.format(FORMAT_RES_FOR_UPDATE, money));
+      ObjectMapper mapper = new ObjectMapper();
+      String json = mapper.writeValueAsString(response);
+
+      return new GetOutputDTO(STAUS_CODE_OK, json);
     } catch (MoneyDistributionError err) {
-      return new UpdateOutputDTO(err.getStatusCode(), String.format(FORMAT_ERR, err.getMessage()));
+      return new GetOutputDTO(err.getStatusCode(), String.format(FORMAT_ERR, err.getMessage()));
     } catch (Exception e) {
-      return new UpdateOutputDTO(STAUS_CODE_ERR, String.format(FORMAT_ERR, "No money distribution available or Not allowed to get money distribution"));
+      return new GetOutputDTO(STAUS_CODE_ERR, String.format(FORMAT_ERR, "No distribution available or Not allowed to get distribution"));
     }
   }
 

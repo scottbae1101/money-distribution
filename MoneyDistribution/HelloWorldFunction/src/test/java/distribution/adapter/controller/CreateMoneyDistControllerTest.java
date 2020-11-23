@@ -8,10 +8,7 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import distribution.adapter.serializer.AwsLambdaSerializer;
 import distribution.adapter.serializer.PostLambdaInput;
 import distribution.application.repository.MoneyDistRepository;
-import distribution.application.usecase.CreateMoneyDistUsecase;
-import distribution.application.usecase.CreateOutputDTO;
-import distribution.application.usecase.EqualMoneySplitAlgorithm;
-import distribution.application.usecase.UpdateMoneyDistUsecase;
+import distribution.application.usecase.*;
 import distribution.entity.MoneyDistribution;
 import distribution.framework.main.CreateMoneyDistMain;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +28,6 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 class CreateMoneyDistControllerTest {
-//  private MoneyDistController cut = new MoneyDistController(mock(CreateMoneyDist.class), mock(AwsLambdaSerializer.class));
 
   @BeforeEach
   void setUp() {
@@ -86,6 +82,11 @@ class CreateMoneyDistControllerTest {
       @Override
       public int updateDistribution(UpdateMoneyDistUsecase.RequestDTO req) {
         return -1;
+      }
+
+      @Override
+      public GetMoneyDistUsecase.ResponseDTO getDistribution(String token) {
+        return null;
       }
 
     }, new EqualMoneySplitAlgorithm()), new AwsLambdaSerializer());

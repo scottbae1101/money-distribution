@@ -3,9 +3,11 @@ package distribution.adapter.serializer;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import distribution.application.exception.RequestException;
 import distribution.application.usecase.CreateInputDTO;
 import distribution.application.exception.RequestBodyException;
 import distribution.application.exception.RequestHeaderException;
+import distribution.application.usecase.GetInputDTO;
 import distribution.application.usecase.UpdateInputDTO;
 
 import java.util.Map;
@@ -54,5 +56,16 @@ public class AwsLambdaSerializer implements MoneyDistSerializer {
       throw new RequestHeaderException("userId in header is missing");
     if (roomId == null)
       throw new RequestHeaderException("roomId in header is missing");
+  }
+
+  @Override
+  public GetInputDTO deserializeGet(APIGatewayProxyRequestEvent input) throws Exception {
+    // Validate Header
+    validateHeader(input.getHeaders());
+
+    String token = input.getPathParameters().get("token");
+    if(token == null)
+      throw new RequestException("token is missing in path-parameter");
+    return new GetInputDTO(userId, roomId, token);
   }
 }
