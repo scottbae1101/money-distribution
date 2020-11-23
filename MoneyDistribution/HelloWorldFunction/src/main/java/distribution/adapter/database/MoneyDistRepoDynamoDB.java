@@ -163,6 +163,9 @@ public class MoneyDistRepoDynamoDB implements MoneyDistRepository {
       res.setCreateEpoch(item.getBigInteger("createEpoch").intValue());
       res.setTotalAmount(item.getBigInteger("totalAmount").intValue());
       res.setOwnerId(item.getString("ownerId"));
+      if(item != null) {
+        res.setToken(token);
+      }
 
       HashMap<String, Integer> distInfoMap = new HashMap<>();
       ArrayList<HashMap<String, Integer>> list = new ArrayList<>();

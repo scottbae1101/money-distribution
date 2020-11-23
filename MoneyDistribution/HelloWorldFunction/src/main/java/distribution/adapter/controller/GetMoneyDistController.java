@@ -4,11 +4,13 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import distribution.adapter.serializer.MoneyDistSerializer;
 import distribution.application.exception.MoneyDistributionError;
+import distribution.application.usecase.GetInputDTO;
 import distribution.application.usecase.UpdateInputDTO;
 import distribution.application.usecase.GetMoneyDistUsecase;
 import distribution.application.usecase.GetOutputDTO;
 
 import java.util.Date;
+import java.util.Map;
 
 public class GetMoneyDistController {
   public static final String FORMAT_ERR = "{ \"Message\": \"%s\" }";
@@ -25,7 +27,7 @@ public class GetMoneyDistController {
   public GetOutputDTO get(APIGatewayProxyRequestEvent input) {
     long nowEpoch = getNowEpoch();
     try {
-      UpdateInputDTO in = this.serializer.deserializeUpdate(input);
+      GetInputDTO in = this.serializer.deserializeGet(input);
       GetMoneyDistUsecase.RequestDTO requestDTO = GetMoneyDistUsecase.RequestDTO.builder()
           .userId(in.getUserId())
           .roomId(in.getRoomId())
