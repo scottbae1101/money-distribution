@@ -56,6 +56,21 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref MoneyDistributionTableName
 
+  GetMoneyDistributionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: HelloWorldFunction
+      Handler: distribution.framework.awslambda.GetMoneyDistribution::handleRequest
+      Events:
+        MoneyDistribution:
+          Type: Api
+          Properties:
+            Path: /distributions/{token}
+            Method: GET
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MoneyDistributionTableName
+
 #      Policies:
 #        - DynamoDBCrudPolicy:
 #            TableName: !Ref PccsTableName

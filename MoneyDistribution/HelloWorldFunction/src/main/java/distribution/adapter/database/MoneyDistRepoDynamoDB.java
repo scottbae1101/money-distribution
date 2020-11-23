@@ -2,13 +2,13 @@ package distribution.adapter.database;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Table;
-import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
+import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.*;
 import distribution.application.repository.MoneyDistRepository;
+import distribution.application.usecase.GetMoneyDistUsecase;
 import distribution.application.usecase.UpdateMoneyDistUsecase;
 import distribution.entity.MoneyDistribution;
 
@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("unchecked")
 public class MoneyDistRepoDynamoDB implements MoneyDistRepository {
 
   public static final String ATTR_TOKEN_PK = "PK";
@@ -144,6 +143,56 @@ public class MoneyDistRepoDynamoDB implements MoneyDistRepository {
         new HashSet<String>(Arrays.asList(userId)));
 
     table.updateItem(ATTR_TOKEN_PK, tokenPk, "add #A :val1", expressionAttributeNames, expressionAttributeValues);
+  }
+
+  @Override
+  public GetMoneyDistUsecase.ResponseDTO getDistribution(String token) {
+    DynamoDB dynamoDB = new DynamoDB(ddb);
+    Table table = dynamoDB.getTable(tableName);
+
+    QuerySpec querySpec = buildQueryParam(token);
+    GetMoneyDistUsecase.ResponseDTO res = new GetMoneyDistUsecase.ResponseDTO();
+    try {
+      ItemCollection<QueryOutcome> items = table.query(querySpec);
+      Iterator<Item> iterator = items.iterator();
+      Item item = null;
+      while (iterator.hasNext()) {
+        item = iterator.next();
+      }
+
+      res.setCreateEpoch(item.getBigInteger("createEpoch").intValue());
+      res.setTotalAmount(item.getBigInteger("totalAmount").intValue());
+      res.setOwnerId(item.getString("ownerId"));
+
+      HashMap<String, Integer> distInfoMap = new HashMap<>();
+      ArrayList<HashMap<String, Integer>> list = new ArrayList<>();
+      list.add(distInfoMap);
+      res.setDistributionList(list);
+      List<String> recvUsers = item.getList("recvUsers");
+      int distributedAmount = 0;
+      for (String recvUser : recvUsers) {
+        int money = item.getBigInteger(recvUser).intValue();
+        distributedAmount += money;
+        distInfoMap.put(recvUser, money);
+      }
+      res.setDistributedAmount(distributedAmount);
+      res.setSucceeded(true);
+      return res;
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+    return res;
+  }
+
+  private QuerySpec buildQueryParam(String token) {
+    HashMap<String, String> nameMap = new HashMap<>();
+    nameMap.put("#pk", "PK");
+    HashMap<String, Object> valueMap = new HashMap<>();
+    valueMap.put(":pk", String.format(FORMAT_PK_TOKEN, token));
+
+    QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#pk = :pk").withNameMap(nameMap)
+        .withValueMap(valueMap);
+    return querySpec;
   }
 }
 
